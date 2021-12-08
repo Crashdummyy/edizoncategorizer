@@ -3,32 +3,64 @@
 @using System.IO
 @using EdizonCategorizer.Shared.Components
 @inject CheatsRepository repository;
+@inject IJSRuntime js
+
 
 <PageTitle>Penis</PageTitle>
 
-<h1 class="pb-2">Categorize your stuff</h1>
+<h1 class="pb-2 pt-2">Categorize your stuff</h1>
 
 <InputFile OnChange="@ReadCheatFile"></InputFile>
 
-    <CheatsContainer Sections="Cheats" OnStatusUpdated="@(() => ShouldRender())">
-        @foreach (var section in Cheats)
-        {
-            <CheatSection Section="section"/>
-        }
-    </CheatsContainer>
+<button type="button" class="btn btn-success p" @onclick="DownloadCheats">Save</button>
+
+<CheatsContainer Sections="cheats" OnStatusUpdated="@(() => ShouldRender())">
+    @foreach (var section in cheats)
+    {
+        <CheatSection Section="section"/>
+    }
+</CheatsContainer>
+
 
 @code {
+
+    private string filename = "penis";
     private async Task ReadCheatFile(InputFileChangeEventArgs obj)
     {
+        filename = obj.File.Name;
         var path = Path.Combine(Path.GetTempPath(),obj.File.Name);
         FileStream fs = new(path, FileMode.Create);
         await obj.File.OpenReadStream().CopyToAsync(fs);
         await fs.FlushAsync();
         await fs.DisposeAsync();
 
-        Cheats = repository.DeserializeFrom(path).ToList();
+        cheats = repository.DeserializeFrom(path).ToList();
         File.Delete(path);
     }
 
-    private List<Data.CheatSection> Cheats = new();
+    private async Task DownloadCheats()
+    {
+        var ms = new MemoryStream();
+        var writer = new StreamWriter(ms);
+        writer.AutoFlush = true;
+        
+        foreach (var cheatSection in cheats.Where(x => x.Cheats.Any() && !x.Name.Equals("Ignore")))
+        {
+            var justName = cheatSection.Name.Replace("[", string.Empty).Replace("]", string.Empty).Replace("-", string.Empty);
+            await writer.WriteLineAsync($"[--SectionStart:{justName}--]");
+            await writer.WriteLineAsync("00000000 00000000 00000000" + Environment.NewLine);
+            foreach (var (name, content) in cheatSection.Cheats)
+                await writer.WriteLineAsync(name + Environment.NewLine + content);
+            
+            await writer.WriteLineAsync($"[--SectionEnd:{justName}--]");
+            await writer.WriteLineAsync("00000000 00000000 00000000" + Environment.NewLine);
+        }
+        
+        ms.Seek(0, SeekOrigin.Begin);
+        
+        using var streamRef = new DotNetStreamReference(stream: ms);
+        await js.InvokeVoidAsync("downloadFileFromStream", filename, streamRef);
+    }
+
+    private List<Data.CheatSection> cheats = new();
 }

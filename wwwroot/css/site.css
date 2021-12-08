@@ -84,6 +84,8 @@ a, .btn-link {
     padding: 30px;
     border: 1px dashed #75868a;
     list-style: none;
+    overflow: auto;
+    max-height: 30em;
 }
 
 .no-drop {
@@ -102,7 +104,7 @@ a, .btn-link {
     background: #5c6b7f;
     color: #ffffff;
     border-radius: 5px;
-    width: 250px;
+    width: 220px;
 }
 
 .draggable:active {
@@ -114,12 +116,12 @@ a, .btn-link {
 }
 
 .description {
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .heap {
     margin-bottom: 0;
-    font-size: 11px;
+    font-size: 9px;
     color: #e1e5ea;
     font-weight: bold;
 }

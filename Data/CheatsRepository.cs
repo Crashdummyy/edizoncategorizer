@@ -11,7 +11,11 @@ namespace EdizonCategorizer.Data
         {
             using var reader = File.OpenText(path);
             
-            var results =new List<CheatSection> { new("UnCategorized", new List<Cheat>()) };
+            var results =new List<CheatSection>
+            {
+                new("Ignore", new List<Cheat>()),
+                new("UnCategorized", new List<Cheat>())
+            };
             
             var currentLine = NextLine(reader);
             while (!reader.EndOfStream && string.IsNullOrWhiteSpace(currentLine))
