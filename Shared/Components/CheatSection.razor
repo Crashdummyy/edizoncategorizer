@@ -1,20 +1,27 @@
-<div class="cheat-section">
-    <h3>@Section.Name (@Section.Cheats.Count)</h3>
+@if (Section != null)
+{
+    <div class="cheat-section">
+        <h5>
+            @Section.Name (@Section.Cheats.Count)
+            <button class="btn btn-danger btn-sm rounded-0" type="button" data-toggle="tooltip" data-placement="top" title="Delete" @onclick="DeleteSection">
+                <i class="oi oi-trash"></i>
+            </button>
+        </h5>
+        <ul class="dropzone @dropClass" 
+            ondragover="event.preventDefault();"
+            ondragstart="event.dataTransfer.setData('', event.target.id);"
+            @ondrop="HandleDrop"
+            @ondragenter="HandleDragEnter"
+            @ondragleave="HandleDragLeave">
 
-    <ul class="dropzone @dropClass" 
-        ondragover="event.preventDefault();"
-        ondragstart="event.dataTransfer.setData('', event.target.id);"
-        @ondrop="HandleDrop"
-        @ondragenter="HandleDragEnter"
-        @ondragleave="HandleDragLeave">
+            @foreach (var cheat in Section.Cheats)
+            {
+                <CheatView CheatModel="cheat" />
+            }
 
-        @foreach (var cheat in Section.Cheats)
-        {
-            <CheatView CheatModel="cheat" />
-        }
-
-    </ul>
-</div>
+        </ul>
+    </div>
+}
 
 @code {
 
@@ -24,23 +31,25 @@
     public CheatsContainer Container { get; set; }
 
     [Parameter]
-    public Data.CheatSection Section { get; set; }
+    public Data.CheatSection? Section { get; set; }
+    
+    [Parameter]
+    public Action<string>? KillMe { get; set; }
     
     protected override void OnParametersSet()
     {
-        Section = Container.Sections.First(x => x.Name.Equals(Section.Name));
+        Section = Container.Sections.FirstOrDefault(x => x.Name.Equals(Section?.Name));
     }
 
     private void HandleDragEnter() => dropClass = "can-drop";
 
-    private void HandleDragLeave() => dropClass = "";
+    private void HandleDragLeave() => dropClass = string.Empty;
 
     private async Task HandleDrop(DragEventArgs obj)
     {
-        dropClass = "";
-        
-        await Container.MoveCheat(Section.Name);
-        this.ShouldRender();
+        dropClass = string.Empty;
+        await Container.MoveCheat(Section?.Name ?? string.Empty);
     }
 
+    private void DeleteSection() => KillMe?.Invoke(Section?.Name ?? string.Empty);
 }

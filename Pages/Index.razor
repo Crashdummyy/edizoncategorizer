@@ -17,7 +17,7 @@
 <CheatsContainer Sections="cheats" OnStatusUpdated="@(() => ShouldRender())">
     @foreach (var section in cheats)
     {
-        <CheatSection Section="section"/>
+        <CheatSection Section="section" KillMe="KillMe"/>
     }
 </CheatsContainer>
 
@@ -63,4 +63,11 @@
     }
 
     private List<Data.CheatSection> cheats = new();
+
+    private void KillMe(string sectionName)
+    {
+        cheats.RemoveAll(x => x.Name.Equals(sectionName));
+        StateHasChanged();
+    }
+
 }
