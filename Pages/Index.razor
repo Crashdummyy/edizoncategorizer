@@ -1,0 +1,38 @@
+﻿@page "/"
+@using EdizonCategorizer.Data
+@using System.IO
+@inject CheatsRepository repository;
+
+<PageTitle>Index</PageTitle>
+
+<h1>Categorize your stuff</h1>
+
+<InputFile OnChange="@ReadCheatFile"></InputFile>
+
+@foreach (var cheatSection in Cheats)
+{
+    <div class="row">
+        <h2>@cheatSection.Name</h2>
+        @foreach (var (name, content) in cheatSection.Cheats)
+        {
+            <div class="col">@name -> @content</div>
+        }
+    </div>
+}
+
+
+@code {
+    private async Task ReadCheatFile(InputFileChangeEventArgs obj)
+    {
+        var path = Path.Combine(Path.GetTempPath(),obj.File.Name);
+        FileStream fs = new(path, FileMode.Create);
+        await obj.File.OpenReadStream().CopyToAsync(fs);
+        await fs.FlushAsync();
+        await fs.DisposeAsync();
+
+        Cheats = repository.DeserializeFrom(path).ToList();
+        File.Delete(path);
+    }
+
+    private List<CheatSection> Cheats = new();
+}
