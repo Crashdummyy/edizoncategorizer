@@ -11,7 +11,7 @@ namespace EdizonCategorizer.Data
         {
             using var reader = File.OpenText(path);
             
-            var results =new List<CheatSection> { new("UnCategorized", new List<(string name, string content)>()) };
+            var results =new List<CheatSection> { new("UnCategorized", new List<Cheat>()) };
             
             var currentLine = NextLine(reader);
             while (!reader.EndOfStream && string.IsNullOrWhiteSpace(currentLine))
@@ -43,8 +43,12 @@ namespace EdizonCategorizer.Data
 
             (currentLine,nextLine) = TryAddSection(reader, currentLine, nextLine, result);
 
-            while (!reader.EndOfStream && !currentLine.StartsWith("[") || !nextLine.StartsWith("00000000"))
+            while (!currentLine.StartsWith("[") || !nextLine.StartsWith("00000000"))
+            {
+                if (reader.EndOfStream)
+                    break;
                 (currentLine, nextLine) = TryAddCheat(reader, currentLine, nextLine, result);
+            }
 
 
             return result;
@@ -62,13 +66,13 @@ namespace EdizonCategorizer.Data
             var code = nextLine.Trim();
 
             currentLine = NextLine(reader);
-            while (!currentLine.StartsWith("["))
+            while ( !currentLine.StartsWith("[") && !reader.EndOfStream)
             {
                 code += Environment.NewLine + currentLine.Trim();
                 currentLine = NextLine(reader);
             }
                 
-            result.Cheats.Add((name,code));
+            result.Cheats.Add(new Cheat(name,code));
             return (currentLine, NextLine(reader));
         }
 
@@ -92,17 +96,18 @@ namespace EdizonCategorizer.Data
     {
         public CheatSection()
         {
-            Cheats = new List<(string name, string content)>();
+            Cheats = new List<Cheat>();
             Name = "UnCategorized";
         }
         
-        public CheatSection(string name, List<(string name, string content)> cheats)
+        public CheatSection(string name, List<Cheat> cheats)
         {
             Name = name;
             Cheats = cheats;
         }
 
         public string Name { get; set; }
-        public List<(string name, string content)> Cheats { get;  }
+        public List<Cheat> Cheats { get;  }
     }
+    public record Cheat(string Name, string Content);
 }

@@ -1,25 +1,21 @@
 ﻿@page "/"
 @using EdizonCategorizer.Data
 @using System.IO
+@using EdizonCategorizer.Shared.Components
 @inject CheatsRepository repository;
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Penis</PageTitle>
 
-<h1>Categorize your stuff</h1>
+<h1 class="pb-2">Categorize your stuff</h1>
 
 <InputFile OnChange="@ReadCheatFile"></InputFile>
 
-@foreach (var cheatSection in Cheats)
-{
-    <div class="row">
-        <h2>@cheatSection.Name</h2>
-        @foreach (var (name, content) in cheatSection.Cheats)
+    <CheatsContainer Sections="Cheats" OnStatusUpdated="@(() => ShouldRender())">
+        @foreach (var section in Cheats)
         {
-            <div class="col">@name -> @content</div>
+            <CheatSection Section="section"/>
         }
-    </div>
-}
-
+    </CheatsContainer>
 
 @code {
     private async Task ReadCheatFile(InputFileChangeEventArgs obj)
@@ -34,5 +30,5 @@
         File.Delete(path);
     }
 
-    private List<CheatSection> Cheats = new();
+    private List<Data.CheatSection> Cheats = new();
 }

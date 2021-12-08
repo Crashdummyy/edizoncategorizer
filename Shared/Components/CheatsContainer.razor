@@ -1,0 +1,26 @@
+@using EdizonCategorizer.Data
+
+<div class="cheats-container row">
+    <CascadingValue Value="this">
+        @ChildContent
+    </CascadingValue>
+</div>
+
+@code {
+    [Parameter] public List<Data.CheatSection> Sections { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public EventCallback<Data.CheatSection> OnStatusUpdated { get; set; }
+    
+    public Cheat Payload { get; set; }
+    
+    public async Task MoveCheat(string targetSection)
+    {
+        var source = Sections.First(x => x.Cheats.Any(y => y.Name.Equals(Payload.Name)));
+        var target = Sections.First(x => x.Name.Equals(targetSection));
+        target.Cheats.Add(Payload);
+        source.Cheats.Remove(Payload);
+
+        await OnStatusUpdated.InvokeAsync(source);
+        await OnStatusUpdated.InvokeAsync(target);
+    }
+}

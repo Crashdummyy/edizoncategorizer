@@ -1,0 +1,14 @@
+<li class="draggable" draggable="true" title="@CheatModel.Name" @ondragstart="@(() => HandleDragStart(CheatModel))" @ondrop="@(() => ShouldRender())">
+    <p class="description">@CheatModel.Name</p>
+    <p class="heap"><small>@CheatModel.Content</small></p>
+</li>
+
+@code {
+    [CascadingParameter] CheatsContainer Container { get; set; }
+    [Parameter] public Data.Cheat CheatModel { get; set; }
+
+    private void HandleDragStart(Data.Cheat cheat)
+    {
+        Container.Payload = cheat;
+    }
+}

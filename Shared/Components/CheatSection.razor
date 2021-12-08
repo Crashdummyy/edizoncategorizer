@@ -1,0 +1,46 @@
+<div class="cheat-section">
+    <h3>@Section.Name (@Section.Cheats.Count)</h3>
+
+    <ul class="dropzone @dropClass" 
+        ondragover="event.preventDefault();"
+        ondragstart="event.dataTransfer.setData('', event.target.id);"
+        @ondrop="HandleDrop"
+        @ondragenter="HandleDragEnter"
+        @ondragleave="HandleDragLeave">
+
+        @foreach (var cheat in Section.Cheats)
+        {
+            <CheatView CheatModel="cheat" />
+        }
+
+    </ul>
+</div>
+
+@code {
+
+    private string dropClass = string.Empty;
+    
+    [CascadingParameter] 
+    public CheatsContainer Container { get; set; }
+
+    [Parameter]
+    public Data.CheatSection Section { get; set; }
+    
+    protected override void OnParametersSet()
+    {
+        Section = Container.Sections.First(x => x.Name.Equals(Section.Name));
+    }
+
+    private void HandleDragEnter() => dropClass = "can-drop";
+
+    private void HandleDragLeave() => dropClass = "";
+
+    private async Task HandleDrop(DragEventArgs obj)
+    {
+        dropClass = "";
+        
+        await Container.MoveCheat(Section.Name);
+        this.ShouldRender();
+    }
+
+}
