@@ -30,7 +30,7 @@ namespace EdizonCategorizer.Data
             {
                 var section = ReadOneSection(reader, ref currentLine, ref nextLine);
                 Action doStuff = section.Name.Equals("UnCategorized")
-                    ? () => results[0].Cheats.AddRange(section.Cheats)
+                    ? () => results[1].Cheats.AddRange(section.Cheats)
                     : () => results.Add(section);
 
                 doStuff();
