@@ -44,17 +44,18 @@
         var writer = new StreamWriter(ms);
         writer.AutoFlush = true;
         
-        foreach (var cheatSection in cheats.Where(x => x.Cheats.Any() && !x.Name.Equals("Ignore")))
+        foreach (var cheatSection in cheats.Skip(2).Where(x => x.Cheats.Any()))
         {
-            var justName = cheatSection.Name.Replace("[", string.Empty).Replace("]", string.Empty).Replace("-", string.Empty);
-            await writer.WriteLineAsync($"[--SectionStart:{justName}--]");
+            await writer.WriteLineAsync($"[--SectionStart:{cheatSection.Name}--]");
             await writer.WriteLineAsync("00000000 00000000 00000000" + Environment.NewLine);
             foreach (var (name, content) in cheatSection.Cheats)
                 await writer.WriteLineAsync(name + Environment.NewLine + content);
             
-            await writer.WriteLineAsync($"[--SectionEnd:{justName}--]");
+            await writer.WriteLineAsync($"[--SectionEnd:{cheatSection.Name}--]");
             await writer.WriteLineAsync("00000000 00000000 00000000" + Environment.NewLine);
         }
+        
+        cheats[1].Cheats.ForEach(x => writer.WriteLine(x.Name + Environment.NewLine + x.Content));
         
         ms.Seek(0, SeekOrigin.Begin);
         
