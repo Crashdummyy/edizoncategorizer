@@ -1,11 +1,13 @@
 @if (Section != null)
 {
-    <div class="cheat-section col">
+    <div class="cheat-section col-xl-3 col-lg-4 col-6">
         <div>
-            <input type="text" @bind="Section.Name" class="text-white bg-black"/>
-            <button class="btn btn-danger btn-sm rounded-0" type="button" data-toggle="tooltip" data-placement="top" title="Delete" @onclick="DeleteSection">
-                <i class="oi oi-trash"></i>
-            </button>
+            <div class="row">
+                <input type="text" @bind="Section.Name" class="text-white bg-black col-9"/>
+                <button class="btn btn-danger btn-sm rounded-0 col" type="button" data-toggle="tooltip" data-placement="top" title="Delete" @onclick="DeleteSection">
+                    <i class="oi oi-trash"></i>
+                </button>
+            </div>
         </div>
         <ul class="dropzone @dropClass" 
             ondragover="event.preventDefault();"

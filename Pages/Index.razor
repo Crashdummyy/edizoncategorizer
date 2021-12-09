@@ -11,7 +11,10 @@
 
 <InputFile accept=".txt" OnChange="@ReadCheatFile"></InputFile>
 
-<button type="button" class="btn btn-success p" @onclick="DownloadCheats">Save</button>
+<button type="button" class="btn btn-success m-1" @onclick="DownloadCheats">Save</button>
+<button class="btn btn-primary btn-sm rounded-0 m-1" type="button" data-toggle="tooltip" data-placement="top" title="Add Section" @onclick="AddNewSection">
+    <i class="oi oi-plus"></i>
+</button>
 
 <CheatsContainer Sections="cheats" OnStatusUpdated="@(() => ShouldRender())">
     @foreach (var section in cheats)
@@ -75,6 +78,12 @@
     private void KillMe(string sectionName)
     {
         cheats.RemoveAll(x => x.Name.Equals(sectionName));
+        StateHasChanged();
+    }
+
+    private void AddNewSection()
+    {
+        cheats.Add(new Data.CheatSection("TODO", new List<Cheat>()));
         StateHasChanged();
     }
 
