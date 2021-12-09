@@ -1,3 +1,4 @@
+using System;
 using EdizonCategorizer.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,5 +29,10 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+
+var timer = new System.Timers.Timer(300000);
+timer.Elapsed += (_, e) => Console.WriteLine("DickPic at {0:HH:mm:ss.fff}", e.SignalTime);
+timer.AutoReset = true;
+timer.Enabled = true;
 
 app.Run();
