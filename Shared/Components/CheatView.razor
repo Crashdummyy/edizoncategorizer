@@ -1,4 +1,4 @@
-<li class="draggable" draggable="true" title="@CheatModel.Name" @ondragstart="@(() => HandleDragStart(CheatModel))" @ondrop="@(() => ShouldRender())">
+<li class="draggable col" draggable="true" title="@CheatModel.Name" @ondragstart="@(() => HandleDragStart(CheatModel))" @ondrop="@(() => ShouldRender())">
     <p class="description">@CheatModel.Name</p>
     <p class="heap"><small>@CheatModel.Content</small></p>
 </li>

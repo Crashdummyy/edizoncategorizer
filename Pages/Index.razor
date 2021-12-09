@@ -5,12 +5,11 @@
 @inject CheatsRepository repository;
 @inject IJSRuntime js
 
-
-<PageTitle>Penis</PageTitle>
+<PageTitle>Edizon Overlay SubMenu Cheat Thingy</PageTitle>
 
 <h1 class="pb-2 pt-2">Categorize your stuff</h1>
 
-<InputFile OnChange="@ReadCheatFile"></InputFile>
+<InputFile accept=".txt" OnChange="@ReadCheatFile"></InputFile>
 
 <button type="button" class="btn btn-success p" @onclick="DownloadCheats">Save</button>
 
@@ -27,6 +26,14 @@
     private string filename = "penis";
     private async Task ReadCheatFile(InputFileChangeEventArgs obj)
     {
+        if (!obj.File.Name.EndsWith(".txt") || obj.File.Size > 100000)
+        {
+            await js.InvokeVoidAsync("alert", "Nice try -.-");
+            return;
+        }
+        
+        Console.WriteLine("[Input]: {0}", obj.File.Name);
+        
         filename = obj.File.Name;
         var path = Path.Combine(Path.GetTempPath(),obj.File.Name);
         FileStream fs = new(path, FileMode.Create);
