@@ -1,24 +1,32 @@
+@using EdizonCategorizer.Data
 @if (Section != null)
 {
-    <div class="cheat-section">
-        <h5>
-            @Section.Name (@Section.Cheats.Count)
-            <button class="btn btn-danger btn-sm rounded-0" type="button" data-toggle="tooltip" data-placement="top" title="Delete" @onclick="DeleteSection">
-                <i class="oi oi-trash"></i>
-            </button>
-        </h5>
+    <div class="cheat-section col-xl-3 col-lg-4 col-6">
+        <div>
+            <div class="row">
+                <input type="text" @bind="Section.Name" class="text-white bg-black col"/>
+                <button class="btn btn-danger btn-circle btn-md" type="button" data-toggle="tooltip" data-placement="top" title="Delete" @onclick="DeleteSection">
+                    <i class="oi oi-trash"></i>
+                </button>
+            </div>
+        </div>
         <ul class="dropzone @dropClass" 
             ondragover="event.preventDefault();"
             ondragstart="event.dataTransfer.setData('', event.target.id);"
             @ondrop="HandleDrop"
             @ondragenter="HandleDragEnter"
-            @ondragleave="HandleDragLeave">
+            @ondragleave="HandleDragLeave"
+            @ontouchmove:preventDefault
+            @ontouchcancel:preventDefault
+            @ontouchcancel:stopPropagation
+            @ontouchmove:stopPropagation>
 
+            <div class="row">
             @foreach (var cheat in Section.Cheats)
             {
-                <CheatView CheatModel="cheat" />
+                <CheatView CheatModel="cheat" DeleteMe="DeleteCheat"/>
             }
-
+            </div>
         </ul>
     </div>
 }
@@ -52,4 +60,11 @@
     }
 
     private void DeleteSection() => KillMe?.Invoke(Section?.Name ?? string.Empty);
+
+    private void DeleteCheat(Cheat obj)
+    {
+        Section?.Cheats.Remove(obj);
+        StateHasChanged();
+    }
+
 }

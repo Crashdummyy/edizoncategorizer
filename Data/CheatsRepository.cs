@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace EdizonCategorizer.Data
 {
@@ -85,7 +86,11 @@ namespace EdizonCategorizer.Data
             if (!currentLine.StartsWith("[") || !nextLine.StartsWith("00000000")) 
                 return (currentLine,nextLine);
             
-            result.Name = currentLine.Trim();
+            result.Name = Regex.Replace(Regex.Replace(currentLine, 
+                                                      @"\[(\-+)(?:\s+|)",
+                                                      string.Empty),
+                                        @"(?:\s+|)(?:\-+|)\](?:\s+|)",
+                                        string.Empty);
             currentLine = string.Empty;
             while (string.IsNullOrWhiteSpace(currentLine))
                 currentLine = NextLine(reader);
