@@ -1,11 +1,19 @@
-<li class="draggable col" draggable="true" title="@CheatModel.Name" @ondragstart="@(() => HandleDragStart(CheatModel))" @ondrop="@(() => ShouldRender())">
-    <p class="description">@CheatModel.Name</p>
-    <p class="heap"><small>@CheatModel.Content</small></p>
-</li>
+        <div class="row">
+            <button class="btn btn-circle btn-sm" type="button"  title="Delete" @onclick="@(() => DeleteMe?.Invoke(CheatModel))">
+                X
+            </button>
+            <li class="draggable col" draggable="true" title="@CheatModel.Name" @ondragstart="@(() => HandleDragStart(CheatModel))" @ondrop="@(() => ShouldRender())">
+                <div>
+                    <p class="description">@CheatModel.Name</p>
+                </div>
+                <p class="heap"><small>@CheatModel.Content</small></p>
+            </li>
+        </div>
 
-@code {
+        @code {
     [CascadingParameter] CheatsContainer Container { get; set; }
     [Parameter] public Data.Cheat CheatModel { get; set; }
+    [Parameter] public Action<Data.Cheat>? DeleteMe { get; set; }
 
     private void HandleDragStart(Data.Cheat cheat)
     {

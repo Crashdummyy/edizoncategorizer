@@ -1,10 +1,11 @@
+@using EdizonCategorizer.Data
 @if (Section != null)
 {
     <div class="cheat-section col-xl-3 col-lg-4 col-6">
         <div>
             <div class="row">
-                <input type="text" @bind="Section.Name" class="text-white bg-black col-9"/>
-                <button class="btn btn-danger btn-sm rounded-0 col" type="button" data-toggle="tooltip" data-placement="top" title="Delete" @onclick="DeleteSection">
+                <input type="text" @bind="Section.Name" class="text-white bg-black col"/>
+                <button class="btn btn-danger btn-circle btn-md" type="button" data-toggle="tooltip" data-placement="top" title="Delete" @onclick="DeleteSection">
                     <i class="oi oi-trash"></i>
                 </button>
             </div>
@@ -23,7 +24,7 @@
             <div class="row">
             @foreach (var cheat in Section.Cheats)
             {
-                <CheatView CheatModel="cheat" />
+                <CheatView CheatModel="cheat" DeleteMe="DeleteCheat"/>
             }
             </div>
         </ul>
@@ -59,4 +60,11 @@
     }
 
     private void DeleteSection() => KillMe?.Invoke(Section?.Name ?? string.Empty);
+
+    private void DeleteCheat(Cheat obj)
+    {
+        Section?.Cheats.Remove(obj);
+        StateHasChanged();
+    }
+
 }

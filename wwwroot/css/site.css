@@ -116,7 +116,7 @@ a, .btn-link {
 }
 
 .description {
-    font-size: 16px;
+    font-size: 13px;
 }
 
 .heap {
@@ -130,4 +130,24 @@ a, .btn-link {
     text-transform: uppercase;
     color: #c4cbd4;
     font-size: 11px;
+}
+
+.btn-circle.btn-sm {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border-radius: 30px;
+    font-size: 10px;
+    text-align: center;
+    background-color: darkred;
+    color: white;
+}
+
+.btn-circle.btn-md {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 25px;
+    font-size: 10px;
+    text-align: center;
 }
