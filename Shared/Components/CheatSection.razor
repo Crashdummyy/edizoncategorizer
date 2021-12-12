@@ -1,12 +1,36 @@
 @using EdizonCategorizer.Data
 @if (Section != null)
 {
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add new cheat</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Send message</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="cheat-section col-xl-3 col-lg-4 col-6">
         <div>
             <div class="row">
                 <input type="text" @bind="Section.Name" class="text-white bg-black col"/>
                 <button class="btn btn-danger btn-circle btn-md" type="button" data-toggle="tooltip" data-placement="top" title="Delete" @onclick="DeleteSection">
                     <i class="oi oi-trash"></i>
+                </button>
+                
+                <button class="btn btn-secondary btn-circle btn-md" type="button" data-toggle="tooltip" data-placement="top" title="NewCheat" @onclick="ShowModal">
+                    <i class="oi oi-plus"></i>
                 </button>
             </div>
         </div>
@@ -34,16 +58,19 @@
 @code {
 
     private string dropClass = string.Empty;
-    
+
     [CascadingParameter] 
     public CheatsContainer Container { get; set; }
+    
+    [CascadingParameter] 
+    public IModalService Modal { get; set; }
 
     [Parameter]
     public Data.CheatSection? Section { get; set; }
     
     [Parameter]
     public Action<string>? KillMe { get; set; }
-    
+
     protected override void OnParametersSet()
     {
         Section = Container.Sections.FirstOrDefault(x => x.Name.Equals(Section?.Name));
@@ -64,6 +91,23 @@
     private void DeleteCheat(Cheat obj)
     {
         Section?.Cheats.Remove(obj);
+        StateHasChanged();
+    }
+    
+    public async Task ShowModal()
+    {
+        var cheat = new Cheat();
+        var parameters = new ModalParameters();
+        parameters.Add(nameof(CheatDialog.CheatModel), cheat);
+        
+        var messageForm = Modal.Show<CheatDialog>("New Cheat", parameters, new ModalOptions{Animation = ModalAnimation.FadeInOut(1), HideHeader = true});
+        if ((await messageForm.Result).Cancelled)
+            return;
+
+        if (!cheat.Name.StartsWith("["))
+            cheat.Name = $"[{cheat.Name}]";
+        
+        Section?.Cheats.Add(cheat);
         StateHasChanged();
     }
 

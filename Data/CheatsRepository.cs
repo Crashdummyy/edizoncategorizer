@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace EdizonCategorizer.Data
@@ -14,7 +10,6 @@ namespace EdizonCategorizer.Data
             
             var results =new List<CheatSection>
             {
-                new("Ignore", new List<Cheat>()),
                 new("UnCategorized", new List<Cheat>())
             };
             
@@ -50,9 +45,9 @@ namespace EdizonCategorizer.Data
 
             while (!currentLine.StartsWith("[") || !nextLine.StartsWith("00000000"))
             {
+                (currentLine, nextLine) = TryAddCheat(reader, currentLine, nextLine, result);
                 if (reader.EndOfStream)
                     break;
-                (currentLine, nextLine) = TryAddCheat(reader, currentLine, nextLine, result);
             }
 
 
@@ -85,14 +80,29 @@ namespace EdizonCategorizer.Data
         {
             if (!currentLine.StartsWith("[") || !nextLine.StartsWith("00000000")) 
                 return (currentLine,nextLine);
+
+            if (currentLine.Contains("SectionEnd:"))
+            {
+                currentLine = NextLine(reader);
+                while (!currentLine.Contains("SectionStart:"))
+                {
+                    currentLine = NextLine(reader);
+                    if (reader.EndOfStream)
+                        return (string.Empty, string.Empty);
+                }
+
+                NextLine(reader); // process to the next line ( delimiter with 00000000 00000000 )
+            }
             
             result.Name = Regex.Replace(Regex.Replace(currentLine, 
                                                       @"\[(\-+)(?:\s+|)",
                                                       string.Empty),
                                         @"(?:\s+|)(?:\-+|)\](?:\s+|)",
-                                        string.Empty);
+                                        string.Empty)
+                               .Replace("SectionStart:", string.Empty); // allow editing existing sectioned files
+            
             currentLine = string.Empty;
-            while (string.IsNullOrWhiteSpace(currentLine))
+            while (string.IsNullOrWhiteSpace(currentLine) && !reader.EndOfStream)
                 currentLine = NextLine(reader);
 
             return (currentLine, NextLine(reader));
@@ -118,5 +128,29 @@ namespace EdizonCategorizer.Data
         public string Name { get; set; }
         public List<Cheat> Cheats { get;  }
     }
-    public record Cheat(string Name, string Content);
+
+    public class Cheat
+    {
+        public Cheat(string name, string content)
+        {
+            Name = name;
+            Content = content;
+        }
+
+        public Cheat()
+        {
+            Name = string.Empty;
+            Content = string.Empty;
+        }
+
+        public string Name { get; set; }
+        public string Content { get; set; }
+
+        public void Deconstruct(out string name,
+                                out string content)
+        {
+            name = Name;
+            content = Content;
+        }
+    }
 }

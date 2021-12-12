@@ -1,0 +1,29 @@
+<div>
+    <div class="container-fluid">
+        <div class="row">
+                <label for="newCheatLabel">Name</label>
+                <input id="newCheatLabel" type="text" @bind="CheatModel.Name">
+            </div>
+            <div class="row">
+                <label for="newCheatContentLabel">Cheat</label>
+                <textarea id="newCheatContentLabel" style="min-height: 10em" @bind="CheatModel.Content"></textarea>
+        
+            </div>
+            <div class="row">
+                <button @onclick=" SubmitForm" class="btn btn-primary">Save</button>
+                <button @onclick=" Cancel" class="btn btn-secondary">Cancel</button>    
+            </div>
+    </div>
+</div>
+
+@code {
+
+    [CascadingParameter]
+    public BlazoredModalInstance BlazoredModal { get; set; }
+
+    [Parameter]
+    public Data.Cheat CheatModel { get; set; }
+
+    async Task SubmitForm() => await BlazoredModal.CloseAsync();
+    async Task Cancel() => await BlazoredModal.CancelAsync();
+}
