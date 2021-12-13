@@ -100,7 +100,7 @@
         var parameters = new ModalParameters();
         parameters.Add(nameof(CheatDialog.CheatModel), cheat);
         
-        var messageForm = Modal.Show<CheatDialog>("New Cheat", parameters, new ModalOptions{Animation = ModalAnimation.FadeInOut(1), HideHeader = true});
+        var messageForm = Modal.Show<CheatDialog>("New Cheat", parameters, new ModalOptions{Animation = ModalAnimation.FadeInOut(0.2), HideHeader = true});
         if ((await messageForm.Result).Cancelled)
             return;
 

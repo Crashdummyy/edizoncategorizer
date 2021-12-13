@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace EdizonCategorizer.Data
@@ -26,7 +30,7 @@ namespace EdizonCategorizer.Data
             {
                 var section = ReadOneSection(reader, ref currentLine, ref nextLine);
                 Action doStuff = section.Name.Equals("UnCategorized")
-                    ? () => results[1].Cheats.AddRange(section.Cheats)
+                    ? () => results.First().Cheats.AddRange(section.Cheats)
                     : () => results.Add(section);
 
                 doStuff();
@@ -41,6 +45,7 @@ namespace EdizonCategorizer.Data
         {
             var result = new CheatSection();
 
+            (currentLine, nextLine) = IgnoreBullshit(reader, currentLine, nextLine);
             (currentLine,nextLine) = TryAddSection(reader, currentLine, nextLine, result);
 
             while (!currentLine.StartsWith("[") || !nextLine.StartsWith("00000000"))
@@ -52,6 +57,18 @@ namespace EdizonCategorizer.Data
 
 
             return result;
+        }
+
+        private (string currentLine, string nextLine) IgnoreBullshit(StreamReader reader,
+                                                                     string currentLine,
+                                                                     string nextLine)
+        {
+            if (!reader.EndOfStream && (string.IsNullOrWhiteSpace(currentLine) || currentLine.StartsWith("[")) && (string.IsNullOrWhiteSpace(nextLine) || nextLine.StartsWith("[")))
+            {
+                return IgnoreBullshit(reader, nextLine, NextLine(reader));
+            }
+
+            return (currentLine, nextLine);
         }
 
         private (string, string) TryAddCheat(StreamReader reader,
@@ -83,15 +100,8 @@ namespace EdizonCategorizer.Data
 
             if (currentLine.Contains("SectionEnd:"))
             {
-                currentLine = NextLine(reader);
-                while (!currentLine.Contains("SectionStart:"))
-                {
-                    currentLine = NextLine(reader);
-                    if (reader.EndOfStream)
-                        return (string.Empty, string.Empty);
-                }
-
-                NextLine(reader); // process to the next line ( delimiter with 00000000 00000000 )
+                NextLine(reader);
+                return TryAddSection(reader, NextLine(reader), NextLine(reader), result);
             }
             
             result.Name = Regex.Replace(Regex.Replace(currentLine, 
