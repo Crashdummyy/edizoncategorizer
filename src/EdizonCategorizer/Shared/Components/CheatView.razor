@@ -11,12 +11,15 @@
         </div>
 
         @code {
-    [CascadingParameter] CheatsContainer Container { get; set; }
-    [Parameter] public Data.Cheat CheatModel { get; set; }
-    [Parameter] public Action<Data.Cheat>? DeleteMe { get; set; }
 
-    private void HandleDragStart(Data.Cheat cheat)
-    {
-        Container.Payload = cheat;
-    }
+            [CascadingParameter]
+            CheatsContainer Container { get; set; } = null!;
+
+            [Parameter]
+            public Data.Cheat CheatModel { get; set; } = new();
+
+            [Parameter]
+            public Action<Data.Cheat>? DeleteMe { get; set; }
+
+        private void HandleDragStart(Data.Cheat cheat) => Container.Payload = cheat;
 }

@@ -7,11 +7,17 @@
 </div>
 
 @code {
-    [Parameter] public List<Data.CheatSection> Sections { get; set; }
-    [Parameter] public RenderFragment ChildContent { get; set; }
-    [Parameter] public EventCallback<Data.CheatSection> OnStatusUpdated { get; set; }
-    
-    public Cheat Payload { get; set; }
+
+    [Parameter]
+    public List<Data.CheatSection> Sections { get; set; } = new();
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback<Data.CheatSection> OnStatusUpdated { get; set; }
+
+    public Cheat Payload { get; set; } = new();
     
     public async Task MoveCheat(string targetSection)
     {

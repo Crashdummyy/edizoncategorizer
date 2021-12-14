@@ -2,12 +2,16 @@
 @using EdizonCategorizer.Data
 @using System.IO
 @using EdizonCategorizer.Shared.Components
+@using CheatSection = EdizonCategorizer.Data.CheatSection
 @inject CheatsRepository repository;
 @inject IJSRuntime js
 
 <PageTitle>Edizon Overlay SubMenu Cheat Thingy</PageTitle>
 
-<h1 class="pb-2 pt-2">Categorize your stuff</h1>
+<div class="row pb-2 pt-2">
+    <h2 class="col-auto">Categorize your stuff</h2>
+    <a href="LivingDoc.html" class="col"><i class="oi oi-question-mark"></i></a>
+</div>
 
 <InputFile accept=".txt" OnChange="@ReadCheatFile"></InputFile>
 
@@ -36,45 +40,23 @@
         }
         
         Console.WriteLine("[Input]: {0}", obj.File.Name);
-        
-        filename = obj.File.Name;
-        var path = Path.Combine(Path.GetTempPath(),obj.File.Name);
-        FileStream fs = new(path, FileMode.Create);
-        await obj.File.OpenReadStream().CopyToAsync(fs);
-        await fs.FlushAsync();
-        await fs.DisposeAsync();
 
-        cheats = repository.DeserializeFrom(path).ToList();
-        File.Delete(path);
+        using var readStream = new MemoryStream();
+        await obj.File.OpenReadStream().CopyToAsync(readStream);
+        readStream.Seek(0, SeekOrigin.Begin);
+        using var reader = new StreamReader(readStream);
+        cheats = repository.DeserializeFrom(reader)
+                           .ToList();
     }
 
     private async Task DownloadCheats()
     {
-        var ms = new MemoryStream();
-        var writer = new StreamWriter(ms);
-        writer.AutoFlush = true;
-        
-        foreach (var cheatSection in cheats.Where(x => x.Cheats.Any() && !x.Name.Equals("UnCategorized")))
-        {
-            await writer.WriteLineAsync($"[--SectionStart:{cheatSection.Name}--]");
-            await writer.WriteLineAsync("00000000 00000000 00000000" + Environment.NewLine);
-            foreach (var (name, content) in cheatSection.Cheats)
-                await writer.WriteLineAsync(name + Environment.NewLine + content + Environment.NewLine);
-            
-            await writer.WriteLineAsync($"[--SectionEnd:{cheatSection.Name}--]");
-            await writer.WriteLineAsync("00000000 00000000 00000000" + Environment.NewLine);
-        }
-        
-        cheats.FirstOrDefault(x => x.Name.Equals("UnCategorized"))?
-              .Cheats.ForEach(x => writer.WriteLine(x.Name + Environment.NewLine + x.Content));
-        
-        ms.Seek(0, SeekOrigin.Begin);
-        
+        var ms = await repository.Serialize(cheats);
         using var streamRef = new DotNetStreamReference(stream: ms);
         await js.InvokeVoidAsync("downloadFileFromStream", filename, streamRef);
     }
 
-    private List<Data.CheatSection> cheats = new();
+    private List<CheatSection> cheats = new() { new CheatSection("UnCategorized", new List<Cheat>()) };
 
     private void KillMe(string sectionName)
     {
@@ -84,7 +66,7 @@
 
     private void AddNewSection()
     {
-        cheats.Add(new Data.CheatSection("TODO", new List<Cheat>()));
+        cheats.Add(new CheatSection("TODO", new List<Cheat>()));
         StateHasChanged();
     }
 

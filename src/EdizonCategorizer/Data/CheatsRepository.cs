@@ -1,17 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace EdizonCategorizer.Data
 {
     public class CheatsRepository
     {
-        public IEnumerable<CheatSection> DeserializeFrom(string path)
+        public IEnumerable<CheatSection> DeserializeFrom(StreamReader reader)
         {
-            using var reader = File.OpenText(path);
-            
             var results =new List<CheatSection>
             {
                 new("UnCategorized", new List<Cheat>())
@@ -22,7 +16,7 @@ namespace EdizonCategorizer.Data
                 currentLine = NextLine(reader);
 
             if (reader.EndOfStream)
-                return Enumerable.Empty<CheatSection>();
+                return results;
             
             var nextLine = NextLine(reader);
             
@@ -39,6 +33,12 @@ namespace EdizonCategorizer.Data
             return results;
         }
 
+        public IEnumerable<CheatSection> DeserializeFrom(string path)
+        {
+            using var reader = File.OpenText(path);
+            return DeserializeFrom(reader);
+        }
+
         private CheatSection ReadOneSection(StreamReader reader,
                                             ref string currentLine,
                                             ref string nextLine)
@@ -51,6 +51,14 @@ namespace EdizonCategorizer.Data
             while (!currentLine.StartsWith("[") || !nextLine.StartsWith("00000000"))
             {
                 (currentLine, nextLine) = TryAddCheat(reader, currentLine, nextLine, result);
+
+                // File ended with oneliner cheat
+                if (reader.EndOfStream && currentLine.StartsWith("["))
+                {
+                    result.Cheats.Add(new Cheat(currentLine.Trim(), nextLine.Trim()));
+                    break;
+                }
+                
                 if (reader.EndOfStream)
                     break;
             }
@@ -83,10 +91,22 @@ namespace EdizonCategorizer.Data
             var code = nextLine.Trim();
 
             currentLine = NextLine(reader);
-            while ( !currentLine.StartsWith("[") && !reader.EndOfStream)
+            while ( !currentLine.StartsWith("["))
             {
                 code += Environment.NewLine + currentLine.Trim();
                 currentLine = NextLine(reader);
+
+                if (currentLine.StartsWith("["))
+                    break;
+                
+                if (reader.EndOfStream && string.IsNullOrWhiteSpace(currentLine))
+                    break;
+
+                if (reader.EndOfStream)
+                {
+                    code += Environment.NewLine + currentLine.Trim();
+                    break;
+                }
             }
                 
             result.Cheats.Add(new Cheat(name,code));
@@ -119,6 +139,31 @@ namespace EdizonCategorizer.Data
         }
 
         private string NextLine(StreamReader reader) => reader.ReadLine()?.Trim() ?? string.Empty;
+
+        public async Task<Stream> Serialize(List<CheatSection> cheats)
+        {
+            var ms = new MemoryStream();
+            var writer = new StreamWriter(ms);
+            writer.AutoFlush = true;
+        
+            foreach (var cheatSection in cheats.Where(x => x.Cheats.Any() && !x.Name.Equals("UnCategorized")))
+            {
+                await writer.WriteLineAsync($"[--SectionStart:{cheatSection.Name}--]");
+                await writer.WriteLineAsync("00000000 00000000 00000000" + Environment.NewLine);
+                foreach (var (name, content) in cheatSection.Cheats)
+                    await writer.WriteLineAsync(name + Environment.NewLine + content + Environment.NewLine);
+            
+                await writer.WriteLineAsync($"[--SectionEnd:{cheatSection.Name}--]");
+                await writer.WriteLineAsync("00000000 00000000 00000000" + Environment.NewLine);
+            }
+        
+            cheats.FirstOrDefault(x => x.Name.Equals("UnCategorized"))?
+                .Cheats.ForEach(x => writer.WriteLine(x.Name + Environment.NewLine + x.Content));
+        
+            ms.Seek(0, SeekOrigin.Begin);
+
+            return ms;
+        }
     }
     
     public class CheatSection

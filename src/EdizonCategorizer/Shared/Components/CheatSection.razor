@@ -59,11 +59,11 @@
 
     private string dropClass = string.Empty;
 
-    [CascadingParameter] 
-    public CheatsContainer Container { get; set; }
-    
-    [CascadingParameter] 
-    public IModalService Modal { get; set; }
+    [CascadingParameter]
+    public CheatsContainer Container { get; set; } = null!;
+
+    [CascadingParameter]
+    public IModalService Modal { get; set; } = null!;
 
     [Parameter]
     public Data.CheatSection? Section { get; set; }

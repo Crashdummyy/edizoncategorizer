@@ -19,10 +19,10 @@
 @code {
 
     [CascadingParameter]
-    public BlazoredModalInstance BlazoredModal { get; set; }
+    public BlazoredModalInstance BlazoredModal { get; set; } = null!;
 
     [Parameter]
-    public Data.Cheat CheatModel { get; set; }
+    public Data.Cheat CheatModel { get; set; } = null!;
 
     async Task SubmitForm() => await BlazoredModal.CloseAsync();
     async Task Cancel() => await BlazoredModal.CancelAsync();
