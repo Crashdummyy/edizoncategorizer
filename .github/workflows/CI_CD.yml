@@ -2,8 +2,7 @@ name: .CI_CD
 
 on:
   push:
-    # branches: [ master ]
-    pull_requests: [ master ]
+    branches: [ master ]
 
 jobs:
   build:
