@@ -37,7 +37,7 @@ jobs:
         configuration: Release
       
     - name: Copy living doc
-      run: mv "tests/UnitTests/bin/Release/net6.0/LivingDoc.html" "./src/EdizonCategorizer/wwwroot/LivingDoc.html"
+      run: mv "LivingDoc.html" "./src/EdizonCategorizer/wwwroot/LivingDoc.html"
       
     - name: Publish Project
       run: dotnet publish -c Release "./src/EdizonCategorizer/EdizonCategorizer.csproj" -o "./pub"
@@ -67,6 +67,6 @@ jobs:
         with:
           app-name: 'EdizonOverlayThingy'
           slot-name: 'production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_9934D418C5434F0AA9DF3D65328B1D1B }}
+          publish-profile: ${{ secrets.AZUREWEBAPPPUBLISHPROFILE }}
           package: .
 
