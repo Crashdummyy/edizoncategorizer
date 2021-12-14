@@ -1,0 +1,49 @@
+name: .CI_CD
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+        
+    - name: Restore dependencies
+      run: otnet restore EdizonCategorizer.sln
+
+    - name: Build
+      run: dotnet build ./EdizonCategorizer.sln
+      
+    - name: Execute Specflow tests
+      run: dotnet test -c Release ./tests/UnitTests/UnitTests.csproj 
+      
+    - name: Run SpecFlow Tests
+      uses: actions/cryptic-wizard/run-specflow-tests@v1.2.0
+      with:
+        test-assembly-path: tests/UnitTests/bin/Release/net6.0
+        test-assembly-dll: UnitTests.dll
+        test-execution-json: TestExecution.json
+        output-html: LivingDoc.html
+        configuration: Release
+      
+    - name: Copy living doc
+      run: mv "tests/UnitTests/bin/Release/net6.0/LivingDoc.html" "./src/EdizonCategorizer/wwwroot/LivingDoc.html"
+      
+    - name: Publish Project
+      run: dotnet publish -c Release "./src/EdizonCategorizer/EdizonCategorizer.csproj" -o "./pub"
+      
+    - name: 'Run Azure webapp deploy action using publish profile credentials'
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: EdizonOverlayThingy
+        publish-profile: ${{ secrets.AZUREWEBAPPPUBLISHPROFILE }}
+
