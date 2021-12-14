@@ -28,7 +28,7 @@ jobs:
       run: dotnet test -c Release ./tests/UnitTests/UnitTests.csproj 
       
     - name: Run SpecFlow Tests
-      uses: actions/cryptic-wizard/run-specflow-tests@v1.2.0
+      uses: cryptic-wizard/run-specflow-tests@v1.2.0
       with:
         test-assembly-path: tests/UnitTests/bin/Release/net6.0
         test-assembly-dll: UnitTests.dll
