@@ -19,7 +19,7 @@ jobs:
         dotnet-version: 6.0.x
         
     - name: Restore dependencies
-      run: otnet restore EdizonCategorizer.sln
+      run: dotnet restore EdizonCategorizer.sln
 
     - name: Build
       run: dotnet build ./EdizonCategorizer.sln
