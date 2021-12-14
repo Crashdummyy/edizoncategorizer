@@ -1,6 +1,6 @@
 # EdizonCategorizer
 [![Live Demo](https://img.shields.io/badge/demo-online-green.svg)](https://edizonoverlaythingy.azurewebsites.net)
-[![Build Status](https://github.com/Crashdummyy/edizoncategorizer/workflows/CI_CD/badge.svg)](https://github.com/crashdummy/Modal/actions?query=workflow%3A%22Build+%26+Test+Main%22)
+[![.CICD](https://github.com/Crashdummyy/edizoncategorizer/actions/workflows/CI_CD.yml/badge.svg)](https://github.com/Crashdummyy/edizoncategorizer/actions/workflows/CI_CD.yml)
 
 
 The EdizonCategorizer is a full fledged tool to create cheat files for atmosphere.  
